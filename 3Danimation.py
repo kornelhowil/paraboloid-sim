@@ -4,18 +4,24 @@ from scipy.integrate import odeint
 import mpl_toolkits.mplot3d.axes3d as p3
 from matplotlib import animation
 
-#constants
+#constants and data
 g = -9.81
-k = 1
-time = 30
-v_0 = -1.5
+k = 1 #paraboloid coefficient
+time = 30 #time of animation
 
-#initial conditions
-init0 = [-1.0, 0.0, 0.0, v_0]
+x_0 = -1.0 #initial position in x axis
+v_x0 = 0.0 #initial velocity in x axis
+y_0 = 0.0 #initial position in y axis
+v_y0 = -1.5 #initial velocity in y axis
+
+#defining initial conditions
+init = [x_0, v_x0, y_0, v_y0]
+
+#########################################################
 
 #solving ODE
-def par(init, t, g, k):
-	x, v_x, y, v_y = init
+def diff_equation(state, t, g, k):
+	x, v_x, y, v_y = state
 
 	dydt=[	v_x, 
 			(g*k*x-4*(k**2)*x*((v_x**2)+(v_y**2)))/(1+4*(k**2)*((x**2)+(y**2))),
@@ -24,25 +30,25 @@ def par(init, t, g, k):
 	return dydt
 
 t = np.linspace(0, time , time*60)
-sol = odeint(par, init0, t, args=(g, k))
+sol = odeint(diff_equation, init, t, args=(g, k))
 
 #generating z-axis data
 height = []
 for a, b in zip(sol[:, 0], sol[:, 2]):
 	height.append(k*(a**2+b**2))
 
-#########################################
+#########################################################
 
 #generating surface data
 T = np.arange(0, 2*(np.pi), 0.01)
 r = np.arange(0, 1.05, 0.01)
 r, T = np.meshgrid(r, T)
-#Parametrise it
+#parametrise it
 x_surface = r*np.cos(T)
 y_surface = r*np.sin(T)
 z_surface = k*r**2
 
-#########################################
+#########################################################
 
 fig = plt.figure()
 ax = p3.Axes3D(fig)
